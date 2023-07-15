@@ -1,6 +1,7 @@
 <?php
 
 require_once 'db1.php';
+require_once 'db.php';
 
 
 // Allow from any origin
