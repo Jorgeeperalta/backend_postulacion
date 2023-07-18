@@ -31,16 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
 
 
 if  ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-    $sql = "SELECT * FROM carreras";
-    $results = dbQuery($sql);
-    $rows = array();
-
-	while($row = dbFetchAssoc($results)) {
-		$rows[] = $row;
-	}
-
-	echo json_encode($rows);
+    $carreras =obtenerTodasCarreras();
+    echo json_encode($carreras);
 
 
 }else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -86,6 +78,17 @@ if  ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 
 }
+// Función para obtener todas las carreras
+function obtenerTodasCarreras()
+{
+    $conexion = obtenerConexionBD();
+
+    $query = "SELECT * FROM Carreras";
+    $stmt = $conexion->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // Función para eliminado logico de una carrera por su ID
 function eliminarCarrera($carreraId,$logico)
 {

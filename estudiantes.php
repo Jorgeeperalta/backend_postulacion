@@ -1,7 +1,7 @@
 <?php
 
 require_once 'db1.php';
-require_once 'db.php';
+
 
 
 // Allow from any origin
@@ -31,45 +31,139 @@ if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {
 
 
 if  ($_SERVER['REQUEST_METHOD'] === 'GET') {
-// Función para obtener los datos de un estudiante por su ID
 
-    $data = json_decode(file_get_contents("php://input", true));
-    $sql = "SELECT * FROM estudiantes";
-    $results = dbQuery($sql);
-    $rows = array();
-
-	while($row = dbFetchAssoc($results)) {
-		$rows[] = $row;
-	}
-
-	echo json_encode($rows);
-    // $query = "SELECT * FROM Estudiantes WHERE id = :estudiante_id";
-    // $stmt = $pdo->prepare($query);
-    // $stmt->bindParam(':estudiante_id', $estudianteId, PDO::PARAM_INT);
-    // $stmt->execute();
-    // return $stmt->fetch(PDO::FETCH_ASSOC);
+    $estudiantes =obtenerTodosEstudiantes();
+    echo json_encode($estudiantes);
 
 
 }else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
-    $estudianteId = $data['pk_estudiante'];
-    if (!is_numeric($estudianteId)) {
+
+    $opcion = $data['opcion'];
+    if($opcion == 'busca_uno'){
+      
+       $dni = $data['dni'];
+    if (!is_numeric($dni)) {
         
         echo json_encode("El ID del estudiante debe ser un número entero.");
     }else {
-    $estudiante = buscarEstudiante($estudianteId);
+    $estudiante = buscarEstudiante($dni);
     echo json_encode($estudiante);
     }
+}else if($opcion == 'insertar'){
+    $dni = $data['dni'];
+    $apellidoNombre = $data['apellido_nombre'];
+    $celular = $data['celular'];
+    $mail = $data['mail']; 
+    $edad = $data['edad'];
+    $codigoPostal = $data['codigo_postal'];
+    $domicilio = $data['domicilio'];
+    $logico = $data['logico'];
+    $carreraId = $data['carrera_id'];
+   $retorna= insertarEstudiante($dni, $apellidoNombre, $celular, $mail, $edad, $codigoPostal, $domicilio,$logico, $carreraId);
+   echo json_encode($retorna);
+} else if($opcion == 'actualizar'){
+    $estudianteId= $data['id'];
+    $dni = $data['dni'];
+    $apellidoNombre = $data['apellido_nombre'];
+    $celular = $data['celular'];
+    $mail = $data['mail']; 
+    $edad = $data['edad'];
+    $codigoPostal = $data['codigo_postal'];
+    $domicilio = $data['domicilio'];
+    $logico = $data['logico'];
+    $carreraId = $data['carrera_id'];
+    $retorna= actualizarEstudiante($estudianteId, $dni, $apellidoNombre, $celular, $mail, $edad, $codigoPostal, $domicilio, $logico, $carreraId);
+    echo json_encode($retorna);
+}else   if($opcion == 'eliminar'){
+    $estudianteId = $data['id'];
+    $logico = $data['logico'];
+    $retorno= eliminarEstudiante($estudianteId, $logico);
+    echo json_encode($retorno);
+  }
 }
-
-// Función para obtener los datos de un estudiante por su ID
-function buscarEstudiante($estudianteId)
+// Función para obtener todos los estudiantes
+function obtenerTodosEstudiantes()
 {
     $conexion = obtenerConexionBD();
 
-    $query = "SELECT * FROM estudiantes WHERE id = :estudiante_id";
+    $query = "SELECT * FROM estudiantes";
     $stmt = $conexion->prepare($query);
-    $stmt->bindValue(':estudiante_id', $estudianteId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function eliminarEstudiante($estudianteId, $logico)
+{
+    $conexion = obtenerConexionBD();
+    $query = "UPDATE estudiantes
+              SET logico = :logico
+              WHERE id = :estudiante_id";
+    $stmt = $conexion->prepare($query);
+    $stmt->bindParam(':logico', $logico, PDO::PARAM_INT);
+    $stmt->bindParam(':estudiante_id', $estudianteId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->rowCount();
+}
+// Función para actualizar un estudiante por su ID
+function actualizarEstudiante($estudianteId, $dni, $apellidoNombre, $celular, $mail, $edad, $codigoPostal, $domicilio, $logico, $carreraId)
+{
+    $conexion = obtenerConexionBD();
+    $query = "UPDATE Estudiantes
+              SET dni = :dni,
+                  apellido_nombre = :apellido_nombre,
+                  celular = :celular,
+                  mail = :mail,
+                  edad = :edad,
+                  codigo_postal = :codigo_postal,
+                  domicilio = :domicilio,
+                  logico = :logico,
+                  carrera_id = :carrera_id
+              WHERE id = :estudiante_id";
+    $stmt = $conexion->prepare($query);
+    $stmt->bindParam(':dni', $dni, PDO::PARAM_STR);
+    $stmt->bindParam(':apellido_nombre', $apellidoNombre, PDO::PARAM_STR);
+    $stmt->bindParam(':celular', $celular, PDO::PARAM_STR);
+    $stmt->bindParam(':mail', $mail, PDO::PARAM_STR);
+    $stmt->bindParam(':edad', $edad, PDO::PARAM_INT);
+    $stmt->bindParam(':codigo_postal', $codigoPostal, PDO::PARAM_STR);
+    $stmt->bindParam(':domicilio', $domicilio, PDO::PARAM_STR);
+    $stmt->bindParam(':logico', $logico, PDO::PARAM_INT);
+    $stmt->bindParam(':carrera_id', $carreraId, PDO::PARAM_INT);
+    $stmt->bindParam(':estudiante_id', $estudianteId, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->rowCount();
+}
+
+// Función para insertar un estudiante
+function insertarEstudiante($dni, $apellidoNombre, $celular, $mail, $edad, $codigoPostal, $domicilio,$logico, $carreraId)
+{
+    $conexion = obtenerConexionBD();
+    $query = "INSERT INTO Estudiantes (dni, apellido_nombre, celular, mail, edad, codigo_postal, domicilio,logico, carrera_id)
+              VALUES (:dni, :apellido_nombre, :celular, :mail, :edad, :codigo_postal, :domicilio, :logico, :carrera_id)";
+    $stmt = $conexion->prepare($query);
+    $stmt->bindParam(':dni', $dni, PDO::PARAM_STR);
+    $stmt->bindParam(':apellido_nombre', $apellidoNombre, PDO::PARAM_STR);
+    $stmt->bindParam(':celular', $celular, PDO::PARAM_STR);
+    $stmt->bindParam(':mail', $mail, PDO::PARAM_STR);
+    $stmt->bindParam(':edad', $edad, PDO::PARAM_INT);
+    $stmt->bindParam(':codigo_postal', $codigoPostal, PDO::PARAM_STR);
+    $stmt->bindParam(':domicilio', $domicilio, PDO::PARAM_STR);
+    $stmt->bindParam(':logico', $logico, PDO::PARAM_INT);
+    $stmt->bindParam(':carrera_id', $carreraId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $conexion->lastInsertId();
+}
+
+// Función para obtener los datos de un estudiante por su dni
+function buscarEstudiante($dni)
+{
+    $conexion = obtenerConexionBD();
+
+    $query = "SELECT * FROM estudiantes WHERE dni = :dni";
+    $stmt = $conexion->prepare($query);
+    $stmt->bindValue(':dni', $dni, PDO::PARAM_INT);
     $stmt->execute();
 
     $estudiante = $stmt->fetch(PDO::FETCH_ASSOC);
