@@ -140,7 +140,8 @@ function obtenerMateriaPorCarreraYanio($carreraId, $anio_carrera)
 {
     $conexion = obtenerConexionBD();
 
-    $query = "SELECT * FROM materias";
+    $query = "SELECT materias.id as id, materias.nombre as nombre, materias.horas_cursada as horas_cursada,materias.forma_aprobacion as forma_aprobacion, materias.carrera_id as carrera_id, materias.anio_carrera as anio_carrera,
+    materias.logico as logico, carreras.nombre as nombre_carrera FROM `materias` INNER JOIN carreras ON materias.carrera_id= carreras.id WHERE materias.logico = 0";
     $stmt = $conexion->query($query);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

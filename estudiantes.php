@@ -87,7 +87,10 @@ function obtenerTodosEstudiantes()
 {
     $conexion = obtenerConexionBD();
 
-    $query = "SELECT * FROM estudiantes";
+    $query = "SELECT estudiantes.dni as dni, estudiantes.apellido_nombre as apellido_nombre, estudiantes.celular as celular,
+    estudiantes.mail as mail, estudiantes.edad as edad, estudiantes.codigo_postal as codigo_postal, estudiantes.domicilio AS
+    domicilio, estudiantes.carrera_id as carrera_id, carreras.nombre as carrera_nombre
+    FROM `estudiantes` INNER JOIN carreras ON estudiantes.carrera_id = carreras.id WHERE estudiantes.logico = 0";
     $stmt = $conexion->prepare($query);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

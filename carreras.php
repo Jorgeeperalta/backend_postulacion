@@ -83,7 +83,7 @@ function obtenerTodasCarreras()
 {
     $conexion = obtenerConexionBD();
 
-    $query = "SELECT * FROM Carreras";
+    $query = "SELECT * FROM `carreras` INNER JOIN facultades ON carreras.id_facultad = facultades.id_facultad WHERE carreras.logico = 0";
     $stmt = $conexion->prepare($query);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
