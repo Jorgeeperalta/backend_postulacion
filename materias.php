@@ -68,9 +68,24 @@ if  ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $logico = $data['logico'];
     $retorno= eliminarMateria($materiaId,$logico);
     echo json_encode($retorno);
+  }else   if($opcion == 'obtenerMateriaPorCarrera'){
+    $carreraId= $data['carrera_id']; 
+    $retorno = obtenerMateriaPorCarrera($carreraId);
+    echo json_encode($retorno);
   }
 
 }
+function obtenerMateriaPorCarrera($carreraId)
+{
+    $conexion = obtenerConexionBD();
+
+    $query = "SELECT * FROM materias WHERE carrera_id = :carrera_id WHERE logico = 0";
+    $stmt = $conexion->prepare($query);
+    $stmt->bindParam(':carrera_id', $carreraId, PDO::PARAM_INT); // Corregimos el nombre del parámetro
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC); // Cambiamos fetch() por fetchAll()
+}
+
 // Función para eliminado logico de una materia por su ID
 function eliminarMateria($materiaId,$logico)
 {

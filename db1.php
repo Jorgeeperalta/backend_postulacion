@@ -20,11 +20,17 @@ function obtenerConexionBD()
 
 function obtenerConfiguracionBD()
 {
+    // $configuracion = [
+    //     'host' => 'localhost',
+    //     'dbName' => 'postulacionbd',
+    //     'username' => 'root',
+    //     'password' => 'root'
+    // ];
     $configuracion = [
-        'host' => 'localhost',
-        'dbName' => 'postulacionbd',
-        'username' => 'root',
-        'password' => 'root'
+        'host' => 'MYSQL5048.site4now.net',
+        'dbName' => 'db_a47d48_uaa',
+        'username' => 'a47d48_uaa',
+        'password' => 'Abc.123**'
     ];
 
     return $configuracion;

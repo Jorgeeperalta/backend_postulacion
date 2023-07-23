@@ -37,14 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $retorno= insertarFacultad($nombreFacultad, $logico);
     echo json_encode($retorno);
   }else if($opcion == 'actualizar'){
-    $estudianteId = $data['id_estudiante'];
-    $materiaId = $data['id_materia'];
-    $inscripcionId = $data['id_inscripcion'];
-    $retorno= actualizarInscripcion($inscripcionId, $estudianteId, $materiaId);
+    $facultadId = $data['id_facultad'];
+    $nombreFacultad = $data['nombre_facultad'];
+    $logico = $data['logico'];
+    $retorno= editarFacultad($facultadId, $nombreFacultad, $logico);
     echo json_encode($retorno);
   }else if($opcion == 'eliminar'){
     $facultadId = $data['id'];
-    $retorno=eliminarFacultad($facultadId);
+    $logico = $data['logico'];
+    $retorno=eliminarFacultad($facultadId,$logico);
     echo json_encode($retorno);
   }else if($opcion == 'obtener'){
     $retorno=obtenerFacultades();
@@ -65,38 +66,40 @@ function obtenerFacultades()
 }
 
 // Función para eliminar una facultad por su ID
-function eliminarFacultad($facultadId)
+function eliminarFacultad($facultadId,$logico)
 {
     $conexion = obtenerConexionBD();
 
-    $query = "DELETE FROM facultades WHERE id_facultad = :facultad_id";
-    $stmt = $conexion->prepare($query);
-    $stmt->bindParam(':facultad_id', $facultadId, PDO::PARAM_INT);
-    $stmt->execute();
-
-    return $stmt->rowCount();
-}
-
-// Función para actualizar una inscripción por su ID
-function actualizarInscripcion($inscripcionId, $estudianteId, $materiaId)
-{
-    $conexion = obtenerConexionBD();
-
-    $query = "UPDATE inscripciones
-              SET estudiante_id = :estudiante_id,
-                  materia_id = :materia_id
-              WHERE id = :inscripcion_id";
+    $query = "UPDATE facultades
+              SET  logico = :logico
+              WHERE id_facultad = :facultad_id";
               
     $stmt = $conexion->prepare($query);
-    $stmt->bindParam(':estudiante_id', $estudianteId, PDO::PARAM_INT);
-    $stmt->bindParam(':materia_id', $materiaId, PDO::PARAM_INT);
-    $stmt->bindParam(':inscripcion_id', $inscripcionId, PDO::PARAM_INT);
+    $stmt->bindParam(':logico', $logico, PDO::PARAM_INT);
+    $stmt->bindParam(':facultad_id', $facultadId, PDO::PARAM_INT);
 
     $stmt->execute();
 
     return $stmt->rowCount();
 }
 
+function editarFacultad($facultadId, $nombreFacultad, $logico)
+{
+    $conexion = obtenerConexionBD();
+
+    $query = "UPDATE facultades
+              SET nombre_facultad = :nombre_facultad, logico = :logico
+              WHERE id_facultad = :facultad_id";
+              
+    $stmt = $conexion->prepare($query);
+    $stmt->bindParam(':nombre_facultad', $nombreFacultad, PDO::PARAM_STR);
+    $stmt->bindParam(':logico', $logico, PDO::PARAM_INT);
+    $stmt->bindParam(':facultad_id', $facultadId, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->rowCount();
+}
 // Función para insertar una nueva facultad
 function insertarFacultad($nombreFacultad, $logico)
 {

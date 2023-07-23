@@ -50,8 +50,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
    // echo json_encode($data);
     $retorno= insertarNota($inscripcionId, $parcial1, $parcial2, $parcial3, $parcial4, $final);
     echo json_encode($retorno);
+  }else  if($opcion === 'obtenerNotasPorEstudiante'){
+     $estudianteId = $data['estudiante_id'];
+     $retorno=obtenerNotasPorEstudiante($estudianteId);
+     echo json_encode($retorno);
   }
 
+}
+function obtenerNotasPorEstudiante($estudianteId)
+{
+    $conexion = obtenerConexionBD();
+   
+    $query = "SELECT * FROM estudiantes
+              INNER JOIN inscripciones ON estudiantes.id = inscripciones.estudiante_id
+              INNER JOIN materias ON materias.id = inscripciones.materia_id
+              INNER JOIN notas ON notas.inscripcion_id = inscripciones.id
+              WHERE estudiantes.id = :estudiante_id";
+    
+    $stmt = $conexion->prepare($query);
+    $stmt->bindParam(':estudiante_id', $estudianteId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 // Función para insertar una nueva nota
@@ -102,7 +121,7 @@ function obtenerNotasPorInscripcionId($inscripcionId)
 {
     $conexion = obtenerConexionBD();
 
-    $query = "SELECT * FROM Notas WHERE inscripcion_id = :inscripcion_id";
+    $query = "SELECT * FROM notas WHERE inscripcion_id = :inscripcion_id";
     $stmt = $conexion->prepare($query);
     $stmt->bindParam(':inscripcion_id', $inscripcionId, PDO::PARAM_INT);
     $stmt->execute();
