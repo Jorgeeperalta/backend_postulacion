@@ -42,8 +42,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $inscripcionId = $data['id_inscripcion'];
     $retorno= actualizarInscripcion($inscripcionId, $estudianteId, $materiaId);
     echo json_encode($retorno);
+  }else if($opcion == 'buscar_por_estudiante_materia'){
+      $estudianteId = $data['id_estudiante'];
+      $materiaId = $data['id_materia'];
+   
+    $retorno= buscarInscripcion($estudianteId, $materiaId);
+    echo json_encode($retorno);
   }
 }
+function buscarInscripcion($estudianteId, $materiaId)
+{
+        $conexion = obtenerConexionBD();
+
+        $query = "SELECT COUNT(*) FROM inscripciones
+                WHERE estudiante_id = :estudiante_id AND materia_id = :materia_id";
+
+        $stmt = $conexion->prepare($query);
+        $stmt->bindParam(':estudiante_id', $estudianteId, PDO::PARAM_INT);
+        $stmt->bindParam(':materia_id', $materiaId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $count = $stmt->fetchColumn();
+
+        // Verificar si $count es mayor a 0 y devolver "verdadero" o "falso" en forma de cadena
+        if ($count > 0) {
+            return "verdadero";
+        } else {
+            return "falso";
+        }
+
+}
+
 // Función para actualizar una inscripción por su ID
 function actualizarInscripcion($inscripcionId, $estudianteId, $materiaId)
 {
